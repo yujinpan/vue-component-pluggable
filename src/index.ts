@@ -1,4 +1,9 @@
-import type { PluginObject, VueConstructor } from 'vue';
+import type {
+  FunctionDirective,
+  ObjectDirective,
+  PluginObject,
+  VueConstructor,
+} from 'vue';
 import type { HasDefined } from 'vue/types/common';
 import type { CreateElement, RenderContext } from 'vue/types/umd';
 import type {
@@ -157,6 +162,43 @@ export function defineComponent(options: any) {
     } else {
       options.install = (vue: VueConstructor) =>
         vue.component(options.name, options);
+    }
+  } else {
+    options.install = options.install.bind(options);
+  }
+
+  return options;
+}
+
+export function defineDirective<
+  BindingValue = any,
+  El extends Element = Element,
+  Options = any,
+>(
+  options: ObjectDirective<El, BindingValue> & { name: string } & Partial<
+      PluginObject<Options>
+    >,
+): ObjectDirective<El, BindingValue> & { name: string } & PluginObject<Options>;
+
+export function defineDirective<BindingValue, El extends Element, Options>(
+  options: FunctionDirective<El, BindingValue> & { name: string } & Partial<
+      PluginObject<Options>
+    >,
+): FunctionDirective<El, BindingValue> & {
+  name: string;
+} & PluginObject<Options>;
+
+export function defineDirective(options: any) {
+  if (!options.install) {
+    if (!options.name) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        '[vue-component-pluggable]',
+        'defineDirective required option `name`.',
+      );
+    } else {
+      options.install = (vue: VueConstructor) =>
+        vue.directive(options.name, options);
     }
   } else {
     options.install = options.install.bind(options);

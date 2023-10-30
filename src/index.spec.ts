@@ -1,6 +1,6 @@
 import Vue from 'vue';
 
-import { defineComponent } from './index';
+import { defineComponent, defineDirective } from './index';
 
 describe('defineComponent', () => {
   it('should define pluggable component', function () {
@@ -33,6 +33,40 @@ describe('defineComponent', () => {
     });
 
     expect(Vue.component(pluggableComponent.name)).toBeDefined();
+    expect(config.test).toBe(1);
+  });
+
+  it('should define pluggable directive', function () {
+    const pluggableDirective = defineDirective<string, HTMLElement>({
+      name: 'bg-color',
+      inserted: (el, binding) => {
+        el.style.backgroundColor = binding.value;
+      },
+    });
+    Vue.use(pluggableDirective);
+
+    expect(Vue.directive(pluggableDirective.name)).toBeDefined();
+  });
+
+  it('should define pluggable directive with custom install', function () {
+    const config: { test?: number } = {};
+    const pluggableDirective = defineDirective<
+      string,
+      HTMLElement,
+      typeof config
+    >({
+      name: 'test',
+      props: {},
+      install(vue, options) {
+        vue.directive(this.name, this);
+        Object.assign(config, options);
+      },
+    });
+    Vue.use(pluggableDirective, {
+      test: 1,
+    });
+
+    expect(Vue.directive(pluggableDirective.name)).toBeDefined();
     expect(config.test).toBe(1);
   });
 });
