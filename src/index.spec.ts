@@ -1,6 +1,6 @@
 import Vue from 'vue';
 
-import { defineComponent, defineDirective } from './index';
+import { defineComponent, defineDirective, defineFilter } from './index';
 
 describe('defineComponent', () => {
   it('should define pluggable component', function () {
@@ -68,5 +68,12 @@ describe('defineComponent', () => {
 
     expect(Vue.directive(pluggableDirective.name)).toBeDefined();
     expect(config.test).toBe(1);
+  });
+
+  it('should define pluggable filter', function () {
+    const pluggableFilter = defineFilter('test', (val: any) => val);
+    Vue.use(pluggableFilter);
+
+    expect(Vue.filter('test')).toBeDefined();
   });
 });

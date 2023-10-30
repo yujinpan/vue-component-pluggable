@@ -173,20 +173,26 @@ export function defineComponent(options: any) {
 export function defineDirective<
   BindingValue = any,
   El extends Element = Element,
-  Options = any,
+  PluginOptions = any,
 >(
   options: ObjectDirective<El, BindingValue> & { name: string } & Partial<
-      PluginObject<Options>
+      PluginObject<PluginOptions>
     >,
-): ObjectDirective<El, BindingValue> & { name: string } & PluginObject<Options>;
+): ObjectDirective<El, BindingValue> & {
+  name: string;
+} & PluginObject<PluginOptions>;
 
-export function defineDirective<BindingValue, El extends Element, Options>(
+export function defineDirective<
+  BindingValue,
+  El extends Element,
+  PluginOptions,
+>(
   options: FunctionDirective<El, BindingValue> & { name: string } & Partial<
-      PluginObject<Options>
+      PluginObject<PluginOptions>
     >,
 ): FunctionDirective<El, BindingValue> & {
   name: string;
-} & PluginObject<Options>;
+} & PluginObject<PluginOptions>;
 
 export function defineDirective(options: any) {
   if (!options.install) {
@@ -205,4 +211,16 @@ export function defineDirective(options: any) {
   }
 
   return options;
+}
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function defineFilter<Filter = Function>(
+  name: string,
+  filter: Filter,
+): Filter & PluginObject<never> {
+  filter['install'] = (vue: VueConstructor) =>
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    vue.filter(name, filter as Function);
+
+  return filter as Filter & PluginObject<never>;
 }
